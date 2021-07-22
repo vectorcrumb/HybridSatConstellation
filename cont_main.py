@@ -4,7 +4,7 @@ from scipy.integrate import odeint, solve_ivp, BDF
 from tqdm import tqdm
 from model_cont import *
 
-dt = 5 * 60
+dt = 10 * 60
 n = int(1.25 * t_horizon / dt)
 
 def step_model(model, u, t0, step_size, x0, sample_size=5):

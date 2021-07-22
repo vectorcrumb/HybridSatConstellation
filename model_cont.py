@@ -4,11 +4,11 @@ from scipy import integrate
 np.random.seed(2021)
 
 N = 10
-M = N -1 
+M = N - 1 
 S = 4
 mu = 4.282837e13
-# t_horizon = 355 * 1.0275 * 24 * 60 * 60
-t_horizon = 3 * 30 * 24 * 60 * 60
+t_horizon = 355 * 1.0275 * 24 * 60 * 60
+# t_horizon = 3 * 30 * 24 * 60 * 60
 t_f = t_horizon
 m_sat = 100
 mass = m_sat * np.ones((N, 1))
