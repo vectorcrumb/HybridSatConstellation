@@ -1,18 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load data in data folder
-x = np.load("data/xc.npy")
-t = np.load("data/tc.npy")
 
-r = x[:,::4]
-theta = x[:,1::4]
-v = x[:,2::4]
-w = x[:,3::4]
-t_days = t / (24 * 60 * 60)
+x = np.load("data/xh.npy")
+t = np.load("data/th.npy")
+j = np.load("data/jh.npy")
+S = 7
+r = x[:,::S]
+theta = x[:,1::S]
+v = x[:,2::S]
+w = x[:,3::S]
+tau = x[:,4::S]
 e = (theta[:,:-1] - theta[:,1:]) * 180 / np.pi
+t_days = t / (24 * 60 * 60)
 
 plt.figure(1)
+
 plt.subplot(221)
 plt.plot(t_days, r)
 plt.title("$r$")
@@ -34,5 +37,6 @@ plt.plot(t_days, w)
 plt.title("$\\omega$")
 plt.xlabel("t")
 plt.ylabel("rad/s")
-plt.show()
 
+
+plt.show()

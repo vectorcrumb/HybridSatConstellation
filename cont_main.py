@@ -10,7 +10,6 @@ n = int(1.25 * t_horizon / dt)
 def step_model(model, u, t0, step_size, x0, sample_size=5):
     tf = t0 + step_size
     tX = np.linspace(t0, tf, sample_size)
-    # print(f"Integrating from {t0} to {tf}")
     x = solve_ivp(model, (t0, tf), y0=x0, t_eval=tX, args=(u,), method="BDF")
     return x.t, x.y
 
@@ -18,18 +17,19 @@ def main():
     x = np.zeros((n, S*N), dtype=float)
     t = np.zeros(n, dtype=float)
     x0 = gen_x0()
-    # print(x[0,:].shape)
     x[0,:] = x0.ravel()
     t[0] = 0.0
 
     try:
         for idx in tqdm(range(1, n)):
+            # Get current time and state
             tk_1 = t[idx-1]
             xk_1 = x[idx-1, :].T
-
+            # Generate global control signal
             uk_1 = constellation_law(xk_1)
-
+            # Step passive model
             _, x_aux = step_model(sat_cont_model, uk_1, tk_1, dt, xk_1)
+            # Add resulting xk to history, alongside new time sample
             xk = (x_aux.T)[-1,:]
             t[idx] = tk_1 + dt
             x[idx, :] = xk
