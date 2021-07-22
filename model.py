@@ -9,19 +9,19 @@ S = 7
 mu = 4.282837e13
 # t_horizon = 355 * 1.0275 * 24 * 60 * 60
 t_horizon = 7 * 24 * 60 * 60
-T_sat = 6 * 60 * 60
+T_sat = 30 * 60
 m_sat = 100
 mass = m_sat * np.ones((N, 1))
 rd = 20428.2 * 1000
 ref = np.array([rd, 0, np.sqrt(mu / (rd ** 3))])
 theta_rel_d = 2 * np.pi / N
 
-kr = 1e-7
-kv = 1e-6
-kw = 1e3
-kc_upp = 1e10
-kc_low = 1e8
-kc_c = 20
+kr = 1e-5
+kv = 1e-4
+kw = 1e4
+kc_upp = 1e11
+kc_low = 1e9
+kc_c = 30
 
 
 def gen_x0():
@@ -29,8 +29,8 @@ def gen_x0():
     v0 = 1e-8 * (2 * np.random.rand(N,1) - 1)
     w0 = 1e-5 * (7.0879 + 0.02 * np.random.rand(N,1) - 0.01)
     theta0 = 1e-3 * (10 * np.random.rand(N,1) - 5)
-    timer0 = (30 * 60) * np.random.rand(N,1)
-    timer0[0] = 60
+    timer0 = (30 * 60) * np.random.rand(N,1) + (2*60)
+    timer0[0] = 5*60
 
     x0 = np.zeros((S*N, 1))
     x0[0::S] = r0
@@ -50,10 +50,13 @@ def kc_gain(t):
     return kc
 
 
-def f_map(x, u):
+def f_map(x, u, dt):
     r = x[0::S]
     v = x[2::S]
     w = x[3::S]
+    timer = x[4::S]
+
+    print(f"State for sat 1 is r: {r[0]:.3f}    v: {v[0]:.3f}   w: {w[0]:.3f}   t: {timer[0]:.3f}")
 
     taur = u[:,0][:,np.newaxis]
     taut = u[:,1][:,np.newaxis]
@@ -64,7 +67,7 @@ def f_map(x, u):
     xdot[1::S] = w
     xdot[2::S] = r * (w ** 2) - mu / (r ** 2) + (taur / mass)[:,0]
     xdot[3::S] = -2 * (v * w) / r + (taut / (mass * r))[:,0]
-    xdot[4::S] = -1
+    xdot[4::S] = -dt
     xdot[5::S] = 0
     xdot[6::S] = 0
 
@@ -128,7 +131,7 @@ def fb_law(t, x, u, ref):
     vd = vd * np.ones((N, 1))
     wd = wd * np.ones((N, 1))
 
-    taur = mass * (-r * (w ** 2) - mu / (r ** 2)) - kv * (v - vd) - kr * (r - rd)
+    taur = mass * (-r * (w ** 2) + mu / (r ** 2)) - kv * (v - vd) - kr * (r - rd)
     taut = mass * (2 * (v * w) - kw * (w - wd) + (r * u) / kc_gain(t))
 
     tau = np.concatenate((taur, taut), axis=1)
@@ -166,5 +169,5 @@ def constellation_law(y_k, dt):
     return u
 
 
-def constellation_model(t, x, u):
-    return f_map(x, u)
+def constellation_model(t, x, u, dt):
+    return f_map(x, u, dt)

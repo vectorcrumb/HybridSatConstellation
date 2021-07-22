@@ -4,7 +4,7 @@ from step_model import step_model
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-dt = 2
+dt = 60
 est_t_samples = t_horizon / dt
 est_j_samples = N * t_horizon / T_sat
 n = int((est_t_samples + est_j_samples) * 1.25)
